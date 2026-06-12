@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kringstar AI — Client Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F172A;
+    --navy-light: #1E293B;
+    --gold: #FBBF24;
+    --gold-dim: #F59E0B;
+    --gold-glow: rgba(251,191,36,0.12);
+    --green: #10B981;
+    --red: #EF4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --text: #F1F5F9;
+    --text-muted: #94A3B8;
+    --border: rgba(251,191,36,0.15);
+    --border-focus: rgba(251,191,36,0.5);
+    --input-bg: rgba(255,255,255,0.04);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(251,191,36,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 90% 90%, rgba(16,185,129,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(251,191,36,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(251,191,36,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }
+  .header { text-align: center; margin-bottom: 48px; animation: fadeDown 0.6s ease both; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+  .logo-icon { width: 42px; height: 42px; background: var(--gold); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--gold); letter-spacing: -0.5px; }
+  .header h1 { font-family: 'Syne', sans-serif; font-size: clamp(26px, 5vw, 36px); font-weight: 800; line-height: 1.15; margin-bottom: 12px; background: linear-gradient(135deg, #fff 40%, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header p { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+  .progress-wrap { margin-bottom: 32px; animation: fadeDown 0.6s 0.1s ease both; }
+  .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .progress-section { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; }
+  .progress-count { font-size: 12px; color: var(--text-muted); }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 0 12px var(--gold); }
+  .form-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 20px; padding: 40px; animation: fadeUp 0.5s 0.2s ease both; position: relative; overflow: hidden; }
+  .form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .section-header { margin-bottom: 28px; }
+  .section-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--gold-glow); border: 1px solid rgba(251,191,36,0.25); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .section-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .field-group { display: grid; gap: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } .form-card { padding: 24px 20px; } .checkbox-grid { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  label { font-size: 13px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.2px; }
+  label .req { color: var(--red); margin-left: 3px; }
+  input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; appearance: none; -webkit-appearance: none;
+  }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; cursor: pointer; }
+  select option { background: var(--navy-light); color: var(--text); }
+  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--gold-glow); background: rgba(255,255,255,0.06); }
+  input.error, select.error, textarea.error { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+  .field-error { font-size: 12px; color: var(--red); display: none; align-items: center; gap: 4px; }
+  .field-error.show { display: flex; }
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .checkbox-item { display: flex; align-items: center; gap: 10px; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; }
+  .checkbox-item:hover { border-color: var(--border-focus); background: rgba(255,255,255,0.06); }
+  .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+  .checkbox-item span { font-size: 13px; color: var(--text); }
+  .radio-cards { display: grid; gap: 12px; }
+  .radio-card { display: flex; align-items: flex-start; gap: 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; user-select: none; }
+  .radio-card:hover { border-color: var(--border-focus); background: rgba(255,255,255,0.05); }
+  .radio-card input[type="radio"] { margin-top: 3px; accent-color: var(--gold); width: 16px; height: 16px; flex-shrink: 0; }
+  .radio-card.selected { border-color: var(--gold); background: var(--gold-glow); box-shadow: 0 0 20px rgba(251,191,36,0.08); }
+  .radio-card-name { font-weight: 600; font-size: 14px; color: #fff; margin-bottom: 2px; }
+  .radio-card-price { font-size: 13px; color: var(--gold); font-weight: 500; }
+  .radio-card-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .terms-row { display: flex; align-items: flex-start; gap: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer; transition: border-color 0.2s; }
+  .terms-row input[type="checkbox"] { margin-top: 2px; accent-color: var(--gold); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .terms-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .terms-text a { color: var(--gold); text-decoration: none; }
+  .btn-row { display: flex; gap: 12px; margin-top: 32px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: var(--radius-sm); padding: 13px 24px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-primary { background: var(--gold); color: var(--navy); flex: 1; box-shadow: 0 4px 20px rgba(251,191,36,0.25); }
+  .btn-primary:hover:not(:disabled) { background: #FCD34D; box-shadow: 0 4px 28px rgba(251,191,36,0.4); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--border-focus); color: var(--text); }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(15,23,42,0.3); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .success-card { text-align: center; padding: 60px 40px; display: none; }
+  .success-card.show { display: block; animation: fadeUp 0.5s ease both; }
+  .success-icon { width: 72px; height: 72px; background: rgba(16,185,129,0.15); border: 2px solid rgba(16,185,129,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; }
+  .success-card h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .success-card p { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+  .error-banner { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: #FCA5A5; margin-top: 16px; display: none; }
+  .error-banner.show { display: block; }
+  .form-section { display: none; }
+  .form-section.active { display: block; animation: fadeIn 0.35s ease both; }
+  .char-count { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="container">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">Kringstar AI</div>
+    </div>
+    <h1>Client Onboarding Form</h1>
+    <p>Complete this form to get started. We'll match you with<br>the perfect AI-powered growth strategy.</p>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span class="progress-section" id="progressLabel">Basic Information</span>
+      <span class="progress-count" id="progressCount">1 of 6</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:16.6%"></div></div>
+  </div>
+
+  <div class="form-card" id="formCard">
+
+    <!-- SECTION 1 -->
+    <div class="form-section active" id="section1">
+      <div class="section-header">
+        <div class="section-tag">Step 1</div>
+        <div class="section-title">Basic Information</div>
+        <div class="section-desc">Tell us who you are so we can personalise your experience.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="full_name" placeholder="e.g. Chisom Adaeze">
+            <span class="field-error" id="err_full_name">⚠ Enter at least 2 characters</span>
+          </div>
+          <div class="field">
+            <label>Company Name <span class="req">*</span></label>
+            <input type="text" id="company_name" placeholder="e.g. Prime Realty Ltd">
+            <span class="field-error" id="err_company_name">⚠ Company name is required</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="you@company.com">
+          <span class="field-error" id="err_email">⚠ Enter a valid email address</span>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="phone" placeholder="08012345678">
+            <span class="field-error" id="err_phone">⚠ Enter at least 10 digits</span>
+          </div>
+          <div class="field">
+            <label>WhatsApp Number <span class="req">*</span></label>
+            <input type="tel" id="whatsapp" placeholder="08012345678">
+            <span class="field-error" id="err_whatsapp">⚠ Enter at least 10 digits</span>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="nextSection(1)">Continue →</button></div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="form-section" id="section2">
+      <div class="section-header">
+        <div class="section-tag">Step 2</div>
+        <div class="section-title">Business Information</div>
+        <div class="section-desc">Help us understand your real estate business better.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Location / City <span class="req">*</span></label>
+            <select id="location"><option value="">Select city</option><option>Lagos</option><option>Abuja</option><option>Port Harcourt</option><option>Other</option></select>
+            <span class="field-error" id="err_location">⚠ Select your city</span>
+          </div>
+          <div class="field">
+            <label>Years of Experience <span class="req">*</span></label>
+            <select id="experience"><option value="">Select range</option><option>0-1</option><option>1-3</option><option>3-5</option><option>5-10</option><option>10+</option></select>
+            <span class="field-error" id="err_experience">⚠ Select your experience</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Property Types <span class="req">*</span></label>
+          <div class="checkbox-grid">
+            <label class="checkbox-item"><input type="checkbox" name="property_types" value="Residential"><span>Residential</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="property_types" value="Commercial"><span>Commercial</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="property_types" value="Mixed-Use"><span>Mixed-Use</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="property_types" value="Land"><span>Land</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="property_types" value="Luxury"><span>Luxury</span></label>
+          </div>
+          <span class="field-error" id="err_property_types">⚠ Select at least one property type</span>
+        </div>
+        <div class="field">
+          <label>Primary Market <span class="req">*</span></label>
+          <select id="primary_market"><option value="">Select market</option><option>First-time buyers</option><option>Investors</option><option>Diaspora</option><option>High-Net-Worth</option></select>
+          <span class="field-error" id="err_primary_market">⚠ Select your primary market</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevSection(2)">← Back</button>
+        <button class="btn btn-primary" onclick="nextSection(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="form-section" id="section3">
+      <div class="section-header">
+        <div class="section-tag">Step 3</div>
+        <div class="section-title">Current Performance</div>
+        <div class="section-desc">Be honest — this helps us identify your biggest opportunities.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Monthly Leads <span class="req">*</span></label>
+            <select id="monthly_leads"><option value="">Select range</option><option>0-10</option><option>10-30</option><option>30-50</option><option>50-100</option><option>100+</option></select>
+            <span class="field-error" id="err_monthly_leads">⚠ Select monthly leads</span>
+          </div>
+          <div class="field">
+            <label>Current Show Rate <span class="req">*</span></label>
+            <select id="show_rate"><option value="">Select range</option><option>0-20%</option><option>20-40%</option><option>40-60%</option><option>60%+</option></select>
+            <span class="field-error" id="err_show_rate">⚠ Select show rate</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Deals Closed / Month <span class="req">*</span></label>
+            <select id="deals_closed"><option value="">Select range</option><option>0-1</option><option>1-2</option><option>2-4</option><option>4+</option></select>
+            <span class="field-error" id="err_deals_closed">⚠ Select deals closed</span>
+          </div>
+          <div class="field">
+            <label>Monthly Ad Spend <span class="req">*</span></label>
+            <select id="ad_spend"><option value="">Select range</option><option>₦0-100K</option><option>₦100K-300K</option><option>₦300K-500K</option><option>₦500K+</option></select>
+            <span class="field-error" id="err_ad_spend">⚠ Select ad spend</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Average Commission Per Deal <span class="req">*</span></label>
+          <select id="avg_commission"><option value="">Select range</option><option>₦500K-1M</option><option>₦1M-2M</option><option>₦2M-3M</option><option>₦3M+</option></select>
+          <span class="field-error" id="err_avg_commission">⚠ Select commission range</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevSection(3)">← Back</button>
+        <button class="btn btn-primary" onclick="nextSection(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="form-section" id="section4">
+      <div class="section-header">
+        <div class="section-tag">Step 4</div>
+        <div class="section-title">Goals & Expectations</div>
+        <div class="section-desc">Tell us where you want to go — we'll build the roadmap.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Primary Goal <span class="req">*</span></label>
+            <select id="primary_goal"><option value="">Select goal</option><option>More appointments</option><option>Higher show rate</option><option>More deals</option><option>All of above</option></select>
+            <span class="field-error" id="err_primary_goal">⚠ Select your goal</span>
+          </div>
+          <div class="field">
+            <label>Timeline for Results <span class="req">*</span></label>
+            <select id="timeline"><option value="">Select timeline</option><option>7 days</option><option>14 days</option><option>30 days</option><option>60 days</option></select>
+            <span class="field-error" id="err_timeline">⚠ Select a timeline</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Current Challenge <span class="req">*</span></label>
+          <textarea id="current_challenge" placeholder="Describe your biggest challenge right now (50–500 characters)..." oninput="updateChar('current_challenge','cc_count')"></textarea>
+          <div class="char-count"><span id="cc_count">0</span> / 500</div>
+          <span class="field-error" id="err_current_challenge">⚠ 50–500 characters required</span>
+        </div>
+        <div class="field">
+          <label>Ideal Buyer Profile <span class="req">*</span></label>
+          <textarea id="ideal_buyer_profile" placeholder="Describe your ideal client/buyer in detail (50–500 characters)..." oninput="updateChar('ideal_buyer_profile','ibp_count')"></textarea>
+          <div class="char-count"><span id="ibp_count">0</span> / 500</div>
+          <span class="field-error" id="err_ideal_buyer_profile">⚠ 50–500 characters required</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevSection(4)">← Back</button>
+        <button class="btn btn-primary" onclick="nextSection(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="form-section" id="section5">
+      <div class="section-header">
+        <div class="section-tag">Step 5</div>
+        <div class="section-title">Package Selection</div>
+        <div class="section-desc">Choose the plan that fits your growth ambitions.</div>
+      </div>
+      <div class="radio-cards">
+        <label class="radio-card" onclick="selectPackage(this)">
+          <input type="radio" name="package" value="Performance Pilot">
+          <div><div class="radio-card-name">Performance Pilot</div><div class="radio-card-price">₦25,000 – ₦60,000 per qualified lead</div><div class="radio-card-desc">Zero risk entry. Pay only when we deliver. No monthly fee.</div></div>
+        </label>
+        <label class="radio-card" onclick="selectPackage(this)">
+          <input type="radio" name="package" value="Starter Retainer">
+          <div><div class="radio-card-name">Starter</div><div class="radio-card-price">₦250,000 / month</div><div class="radio-card-desc">8–12 verified qualified buyers. Full campaign management.</div></div>
+        </label>
+        <label class="radio-card" onclick="selectPackage(this)">
+          <input type="radio" name="package" value="Growth Retainer">
+          <div><div class="radio-card-name">Growth</div><div class="radio-card-price">₦500,000 / month</div><div class="radio-card-desc">15–20 verified buyers. Landing page + advanced targeting.</div></div>
+        </label>
+        <label class="radio-card" onclick="selectPackage(this)">
+          <input type="radio" name="package" value="Premium Retainer">
+          <div><div class="radio-card-name">Premium</div><div class="radio-card-price">₦900,000 / month</div><div class="radio-card-desc">25–30 verified buyers. Dedicated account manager.</div></div>
+        </label>
+      </div>
+      <span class="field-error" id="err_package" style="margin-top:8px">⚠ Please select a package</span>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevSection(5)">← Back</button>
+        <button class="btn btn-primary" onclick="nextSection(5)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="form-section" id="section6">
+      <div class="section-header">
+        <div class="section-tag">Step 6</div>
+        <div class="section-title">Additional Information</div>
+        <div class="section-desc">Almost there — just a few final details.</div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>How did you hear about us? <span class="req">*</span></label>
+          <select id="referral_source"><option value="">Select source</option><option>Google</option><option>Instagram</option><option>WhatsApp</option><option>Referral</option><option>Other</option></select>
+          <span class="field-error" id="err_referral_source">⚠ Please select a source</span>
+        </div>
+        <div class="field">
+          <label>Additional Comments</label>
+          <textarea id="additional_comments" placeholder="Anything else you'd like us to know? (optional)" style="min-height:80px"></textarea>
+        </div>
+        <div class="field">
+          <label class="terms-row">
+            <input type="checkbox" id="terms_agreed">
+            <span class="terms-text">I agree to Kringstar AI's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>, and consent to being contacted about my onboarding. <span class="req">*</span></span>
+          </label>
+          <span class="field-error" id="err_terms">⚠ You must agree to continue</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevSection(6)">← Back</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+          <span id="submitLabel">Submit Application</span>
+          <div class="spinner" id="submitSpinner" style="display:none"></div>
+        </button>
+      </div>
+      <div class="error-banner" id="errorBanner">⚠ Something went wrong. Please try again or contact us on WhatsApp.</div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-card" id="successCard">
+      <div class="success-icon">✅</div>
+      <h2>Welcome to Kringstar AI!</h2>
+      <p>Your onboarding details have been received.<br>Christopher will be in touch within <strong style='color:#fff'>2 hours</strong> to confirm your campaign setup.<br><br>Your first qualified leads will be live within <strong style='color:#fff'>72 hours</strong>.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const WEBHOOK_URL = "https://hook.us2.make.com/syhy9b18tpxhmasotx5j8t16lgtxlb2h";
+const SECTION_NAMES = ["Basic Information","Business Information","Current Performance","Goals & Expectations","Package Selection","Additional Information"];
+let current = 1;
+
+function updateProgress(n) {
+  document.getElementById('progressLabel').textContent = SECTION_NAMES[n-1];
+  document.getElementById('progressCount').textContent = n + ' of 6';
+  document.getElementById('progressFill').style.width = ((n/6)*100) + '%';
+}
+
+function showSection(n) {
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section'+n).classList.add('active');
+  updateProgress(n); current = n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function prevSection(n) { showSection(n-1); }
+function nextSection(n) { if(validateSection(n)) showSection(n+1); }
+
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function setErr(id, show) {
+  const err = document.getElementById('err_'+id); if(err) err.classList.toggle('show', show);
+  const inp = document.getElementById(id); if(inp) inp.classList.toggle('error', show);
+}
+
+function validateSection(n) {
+  let ok = true;
+  if(n===1) {
+    const nm = v('full_name').length>=2; setErr('full_name',!nm); if(!nm) ok=false;
+    const co = v('company_name').length>=1; setErr('company_name',!co); if(!co) ok=false;
+    const em = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email')); setErr('email',!em); if(!em) ok=false;
+    const ph = v('phone').replace(/\D/g,'').length>=10; setErr('phone',!ph); if(!ph) ok=false;
+    const wa = v('whatsapp').replace(/\D/g,'').length>=10; setErr('whatsapp',!wa); if(!wa) ok=false;
+  }
+  if(n===2) {
+    const loc=v('location'); setErr('location',!loc); if(!loc) ok=false;
+    const exp=v('experience'); setErr('experience',!exp); if(!exp) ok=false;
+    const pts=[...document.querySelectorAll('input[name="property_types"]:checked')].length>0;
+    document.getElementById('err_property_types').classList.toggle('show',!pts); if(!pts) ok=false;
+    const pm=v('primary_market'); setErr('primary_market',!pm); if(!pm) ok=false;
+  }
+  if(n===3) {
+    ['monthly_leads','show_rate','deals_closed','ad_spend','avg_commission'].forEach(f=>{
+      const val=v(f); setErr(f,!val); if(!val) ok=false;
+    });
+  }
+  if(n===4) {
+    const pg=v('primary_goal'); setErr('primary_goal',!pg); if(!pg) ok=false;
+    const tl=v('timeline'); setErr('timeline',!tl); if(!tl) ok=false;
+    const cc=v('current_challenge'); const cok=cc.length>=50&&cc.length<=500; setErr('current_challenge',!cok); if(!cok) ok=false;
+    const ibp=v('ideal_buyer_profile'); const iok=ibp.length>=50&&ibp.length<=500; setErr('ideal_buyer_profile',!iok); if(!iok) ok=false;
+  }
+  if(n===5) {
+    const pkg=!!document.querySelector('input[name="package"]:checked');
+    document.getElementById('err_package').classList.toggle('show',!pkg); if(!pkg) ok=false;
+  }
+  if(n===6) {
+    const ref=v('referral_source'); setErr('referral_source',!ref); if(!ref) ok=false;
+    const terms=document.getElementById('terms_agreed').checked; setErr('terms',!terms); if(!terms) ok=false;
+  }
+  return ok;
+}
+
+function selectPackage(card) {
+  document.querySelectorAll('.radio-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+
+function updateChar(fieldId, countId) {
+  document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
+}
+
+function submitForm() {
+  if(!validateSection(6)) return;
+  const btn=document.getElementById('submitBtn');
+  const label=document.getElementById('submitLabel');
+  const spinner=document.getElementById('submitSpinner');
+  const errorBanner=document.getElementById('errorBanner');
+  btn.disabled=true; label.style.display='none'; spinner.style.display='block'; errorBanner.classList.remove('show');
+
+  // Flat FormData -- Make.com maps each field directly to a Google Sheet column
+  const fd = new FormData();
+  fd.append('form_type',          'onboarding');
+  fd.append('source_url',         window.location.href);
+  fd.append('submitted_at',       new Date().toISOString());
+  // Section 1
+  fd.append('full_name',          v('full_name'));
+  fd.append('company_name',       v('company_name'));
+  fd.append('email',              v('email'));
+  fd.append('phone',              v('phone'));
+  fd.append('whatsapp',           v('whatsapp'));
+  // Section 2
+  fd.append('location',           v('location'));
+  fd.append('experience',         v('experience'));
+  fd.append('property_types',     [...document.querySelectorAll('input[name="property_types"]:checked')].map(c=>c.value).join(', '));
+  fd.append('primary_market',     v('primary_market'));
+  // Section 3
+  fd.append('monthly_leads',      v('monthly_leads'));
+  fd.append('show_rate',          v('show_rate'));
+  fd.append('deals_closed',       v('deals_closed'));
+  fd.append('ad_spend',           v('ad_spend'));
+  fd.append('avg_commission',     v('avg_commission'));
+  // Section 4
+  fd.append('primary_goal',       v('primary_goal'));
+  fd.append('timeline',           v('timeline'));
+  fd.append('current_challenge',  v('current_challenge'));
+  fd.append('ideal_buyer_profile',v('ideal_buyer_profile'));
+  // Section 5
+  fd.append('selected_package',   document.querySelector('input[name="package"]:checked')?.value||'');
+  // Section 6
+  fd.append('referral_source',    v('referral_source'));
+  fd.append('additional_comments',document.getElementById('additional_comments').value.trim());
+  fd.append('terms_agreed',       document.getElementById('terms_agreed').checked ? 'Yes' : 'No');
+
+  function showSuccess() {
+    document.getElementById('progressWrap').style.display='none';
+    document.querySelectorAll('.form-section').forEach(s=>s.style.display='none');
+    document.getElementById('successCard').classList.add('show');
+  }
+
+  // XHR -- no CORS preflight issues with FormData
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', WEBHOOK_URL, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) { showSuccess(); }
+  };
+  xhr.onerror = function() {
+    // no-cors fallback
+    fetch(WEBHOOK_URL, { method:'POST', mode:'no-cors', body:fd });
+    showSuccess();
+  };
+  xhr.send(fd);
+}
+
+document.addEventListener('input', e => {
+  if(e.target.id) { const el=document.getElementById(e.target.id); if(el) el.classList.remove('error'); const err=document.getElementById('err_'+e.target.id); if(err) err.classList.remove('show'); }
+});
+</script>
+</body>
+</html>
